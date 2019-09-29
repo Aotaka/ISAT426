@@ -35,13 +35,13 @@
 	<div class="row content">
 		<div class="col-sm-3 sidenav">
 			<div class="form-group">
-  				<label id="usrLabel">Wind:</label>
+  				<label id="usrLabel">Wind%:</label>
   				<input type="number" class="form-control" id="windFactor">
   				
 			</div>
 			
 			<div class="form-group">
-  				<label id="msgLabel">Residential:</label>
+  				<label id="msgLabel">Residential%:</label>
   				<input type="number" class="form-control" id="residentialFactor">
       </div>
       
@@ -75,11 +75,38 @@
     <script src="data/residential.js"></script>
     <script>
 
+var layer_ne_10m_airports_1;
+
+function newData(windFactor, residentialFactor) {
+      bounds_group = new L.featureGroup([]);
+      var ne_10m_airports_1_hm = geoJson2heat(jsonWind, windFactor);
+      var ne_residential = geoJson2heat(jsonResidential, residentialFactor);
+      var data = ne_10m_airports_1_hm.concat(ne_residential)
+
+      if(layer_ne_10m_airports_1) {
+        map.removeLayer(layer_ne_10m_airports_1);
+      }
+
+      layer_ne_10m_airports_1 = new L.heatLayer(data, {
+        attribution: '',
+        radius: 70,
+        max: 0.8,
+        blur: 40,
+        minOpacity: 0.4,
+        gradient: {0.7: 'blue', 0.9: 'lime', 1: 'red'}});
+
+        bounds_group.addLayer(layer_ne_10m_airports_1)
+        
+        map.addLayer(layer_ne_10m_airports_1);
+
+    }
+
   $(document).ready(function(){
-    $('submit').click(function(){
+    $('#submit').click(function(){
       var windFactor = document.getElementById('windFactor').value;
       var residentialFactor = document.getElementById('residentialFactor').value;
       console.log(windFactor, residentialFactor)
+      newData(windFactor, residentialFactor);
     });
   });
 
@@ -106,30 +133,31 @@
 
     setBounds();
 
+
+
     map.createPane('pane_wind');
     map.getPane('pane_wind').style.zIndex = 401;
     map.getPane('pane_wind').style['mix-blend-mode'] = 'normal';
-    var ne_10m_airports_1_hm = geoJson2heat(jsonWind, 1);
+    /*var ne_10m_airports_1_hm = geoJson2heat(jsonWind, 1);
     var ne_residential = geoJson2heat(jsonResidential, 0.1);
-    console.log(ne_residential)
+
     var data = ne_10m_airports_1_hm.concat(ne_residential)
-    console.log(data)
     var layer_ne_10m_airports_1 = new L.heatLayer(data, {
         attribution: '',
-        radius: 80,
+        radius: 70,
         max: 0.8,
         blur: 40,
         minOpacity: 0.4,
-        gradient: {0.7: 'blue', 0.8: 'lime', 1: 'red'}});
+        gradient: {0.7: 'blue', 0.9: 'lime', 1: 'red'}});
     bounds_group.addLayer(layer_ne_10m_airports_1);
-    map.addLayer(layer_ne_10m_airports_1);
+    map.addLayer(layer_ne_10m_airports_1);*/
 
     function geoJson2heat(geojson, weight) {
       return geojson.features.map(function(feature) {
         return [
           feature.geometry.coordinates[1],
           feature.geometry.coordinates[0],
-          weight * 0.5
+          (weight /100)
         ];
       });
     }
