@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <style>
+        #map {
+            width: 1981px;
+            height: 631px;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet-heat.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/ne_10m_airports_1.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[46.73060238215428,-16.44121571569938],[61.34045358215415,29.525231859498934]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>');
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        var layer_OpenStreetMap_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            opacity: 1.0,
+            attribution: '',
+        });
+        layer_OpenStreetMap_0;
+        map.addLayer(layer_OpenStreetMap_0);
+        function pop_ne_10m_airports_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['scalerank'] !== null ? Autolinker.link(String(feature.properties['scalerank'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['featurecla'] !== null ? Autolinker.link(String(feature.properties['featurecla'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['type'] !== null ? Autolinker.link(String(feature.properties['type'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name'] !== null ? Autolinker.link(String(feature.properties['name'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['abbrev'] !== null ? Autolinker.link(String(feature.properties['abbrev'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['location'] !== null ? Autolinker.link(String(feature.properties['location'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gps_code'] !== null ? Autolinker.link(String(feature.properties['gps_code'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['iata_code'] !== null ? Autolinker.link(String(feature.properties['iata_code'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['wikipedia'] !== null ? Autolinker.link(String(feature.properties['wikipedia'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['natlscale'] !== null ? Autolinker.link(String(feature.properties['natlscale'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['comments'] !== null ? Autolinker.link(String(feature.properties['comments'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['wikidataid'] !== null ? Autolinker.link(String(feature.properties['wikidataid'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_ar'] !== null ? Autolinker.link(String(feature.properties['name_ar'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_bn'] !== null ? Autolinker.link(String(feature.properties['name_bn'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">name_de</th>\
+                        <td>' + (feature.properties['name_de'] !== null ? Autolinker.link(String(feature.properties['name_de'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_en'] !== null ? Autolinker.link(String(feature.properties['name_en'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_es'] !== null ? Autolinker.link(String(feature.properties['name_es'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_fr'] !== null ? Autolinker.link(String(feature.properties['name_fr'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_el'] !== null ? Autolinker.link(String(feature.properties['name_el'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_hi'] !== null ? Autolinker.link(String(feature.properties['name_hi'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_hu'] !== null ? Autolinker.link(String(feature.properties['name_hu'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_id'] !== null ? Autolinker.link(String(feature.properties['name_id'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_it'] !== null ? Autolinker.link(String(feature.properties['name_it'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_ja'] !== null ? Autolinker.link(String(feature.properties['name_ja'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_ko'] !== null ? Autolinker.link(String(feature.properties['name_ko'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_nl'] !== null ? Autolinker.link(String(feature.properties['name_nl'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_pl'] !== null ? Autolinker.link(String(feature.properties['name_pl'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_pt'] !== null ? Autolinker.link(String(feature.properties['name_pt'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_ru'] !== null ? Autolinker.link(String(feature.properties['name_ru'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_sv'] !== null ? Autolinker.link(String(feature.properties['name_sv'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_tr'] !== null ? Autolinker.link(String(feature.properties['name_tr'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_vi'] !== null ? Autolinker.link(String(feature.properties['name_vi'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name_zh'] !== null ? Autolinker.link(String(feature.properties['name_zh'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['wdid_score'] !== null ? Autolinker.link(String(feature.properties['wdid_score'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ne_id'] !== null ? Autolinker.link(String(feature.properties['ne_id'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['type_code'] !== null ? Autolinker.link(String(feature.properties['type_code'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        map.createPane('pane_ne_10m_airports_1');
+        map.getPane('pane_ne_10m_airports_1').style.zIndex = 401;
+        map.getPane('pane_ne_10m_airports_1').style['mix-blend-mode'] = 'normal';
+        var ne_10m_airports_1_hm = geoJson2heat(json_ne_10m_airports_1,
+                                      '');
+        var layer_ne_10m_airports_1 = new L.heatLayer(ne_10m_airports_1_hm, {
+            attribution: '',
+            radius: 20,
+            max: 1,
+            minOpacity: 1,
+            gradient: {0: '#ffffff', 1: '#000000'}});
+        bounds_group.addLayer(layer_ne_10m_airports_1);
+        map.addLayer(layer_ne_10m_airports_1);
+        setBounds();
+        function geoJson2heat(geojson, weight) {
+          return geojson.features.map(function(feature) {
+            return [
+              feature.geometry.coordinates[1],
+              feature.geometry.coordinates[0],
+              feature.properties[weight]
+            ];
+          });
+        }
+        </script>
+    </body>
+</html>
