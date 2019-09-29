@@ -73,6 +73,7 @@
     <script src="js/labels.js"></script>
     <script src="data/ne_10m_airports_1.js"></script>
     <script src="data/wind.js"></script>
+    <script src="data/residential.js"></script>
     <script>
     var map = L.map('map', {
         zoomControl:true, maxZoom:14, minZoom:1
@@ -101,8 +102,12 @@
     map.createPane('pane_wind');
     map.getPane('pane_wind').style.zIndex = 401;
     map.getPane('pane_wind').style['mix-blend-mode'] = 'normal';
-    var ne_10m_airports_1_hm = geoJson2heat(jsonWind, 0.4);
-    var layer_ne_10m_airports_1 = new L.heatLayer(ne_10m_airports_1_hm, {
+    var ne_10m_airports_1_hm = geoJson2heat(jsonWind, 1);
+    var ne_residential = geoJson2heat(jsonResidential, 0.1);
+    console.log(ne_residential)
+    var data = ne_10m_airports_1_hm.concat(ne_residential)
+    console.log(data)
+    var layer_ne_10m_airports_1 = new L.heatLayer(data, {
         attribution: '',
         radius: 80,
         max: 0.8,
@@ -112,14 +117,12 @@
     bounds_group.addLayer(layer_ne_10m_airports_1);
     map.addLayer(layer_ne_10m_airports_1);
 
-    
-
     function geoJson2heat(geojson, weight) {
       return geojson.features.map(function(feature) {
         return [
           feature.geometry.coordinates[1],
           feature.geometry.coordinates[0],
-          weight
+          weight * 0.5
         ];
       });
     }
