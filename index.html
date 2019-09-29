@@ -12,8 +12,6 @@
     
     <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
-
-
 	
 	<style>
     /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
@@ -37,20 +35,19 @@
 	<div class="row content">
 		<div class="col-sm-3 sidenav">
 			<div class="form-group">
-  				<label id="usrLabel">Name:</label>
-  				<input type="text" class="form-control" id="usr">
-  				<input type="button" value="Submit" id="usrButton" >
-  				<p id="userAlertMessage"></p>
+  				<label id="usrLabel">Wind:</label>
+  				<input type="number" class="form-control" id="windFactor">
+  				
 			</div>
 			
 			<div class="form-group">
-  				<label id="msgLabel">Message:</label>
-  				<input type="text" class="form-control" id="msg">
-  				<input type="button" value="Submit" id="msgButton" >
-  				<input type="button" value="Edit" id="editButton" >
-  				<input type="button" value="All Messages" id="allButton" >
-  				<p id="msgAlertMessage"></p>
-			</div>		
+  				<label id="msgLabel">Residential:</label>
+  				<input type="number" class="form-control" id="residentialFactor">
+      </div>
+      
+      <div class="form-group">
+        <input type="button" value="Submit" id="submit"/>
+      </div>
 		</div>
 
 		<div class="col-sm-9">
@@ -60,6 +57,8 @@
 		</div>
 	</div>
 </div>
+
+
 
     <script src="js/qgis2web_expressions.js"></script>
     <script src="js/leaflet.js"></script>
@@ -75,6 +74,15 @@
     <script src="data/wind.js"></script>
     <script src="data/residential.js"></script>
     <script>
+
+  $(document).ready(function(){
+    $('submit').click(function(){
+      var windFactor = document.getElementById('windFactor').value;
+      var residentialFactor = document.getElementById('residentialFactor').value;
+      console.log(windFactor, residentialFactor)
+    });
+  });
+
     var map = L.map('map', {
         zoomControl:true, maxZoom:14, minZoom:1
     }).fitBounds([[38,-79],[40.869768,-80]]);
@@ -93,7 +101,6 @@
     map.on("click", onMapClick);
 
     function onMapClick(e) {
-        //console.log("You clicked the map at " + (e.latlng));
         console.log("{\"geometry\": {\"coordinates\": [", e.latlng.lng, ",", e.latlng.lat, "]}},")
     }
 
