@@ -25,7 +25,7 @@
 
     #map {
             width: 100%;
-            height: 931px;
+            height: 831px;
         }
   </style>
 </head>
@@ -35,30 +35,56 @@
 	<div class="row content">
 		<div class="col-sm-3 sidenav">
 			<div class="form-group">
-  				<label id="usrLabel">Wind%:</label>
-  				<input type="number" class="form-control" id="windFactor">
+  				<label id="usrLabel">Wind %:</label>
+  				<input type="number" class="form-control" id="windFactor" value="50">
   				
 			</div>
 			
 			<div class="form-group">
-  				<label id="msgLabel">Residential%:</label>
+  				<label id="msgLabel">Residential %:</label>
+  				<input type="number" class="form-control" id="residentialFactor" value="50">
+      </div>
+
+      <div class="form-group">
+  				<label id="msgLabel">Road Acces %:</label>
+  				<input type="number" class="form-control" id="residentialFactor">
+      </div>
+
+      <div class="form-group">
+  				<label id="msgLabel">Demand for Power %:</label>
   				<input type="number" class="form-control" id="residentialFactor">
       </div>
       
       <div class="form-group">
-        <input type="button" value="Submit" id="submit"/>
+        <input type="button" value="Update Heatmap" id="submit"/>
+        <input type="button" value="Remove Heatmap" id="removeHeatmap"/>
       </div>
 		</div>
 
 		<div class="col-sm-9">
-                <div id="map">
-                    </div>
+        <div id="map"></div>
+
+        <div id=""; height: 800px;">
+            <table class="table table-striped">
+              <h2>Proposed Sites</h2>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th></th>
+
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+              </tbody>
+            </table>
+          </div>
+          </div>
 
 		</div>
 	</div>
 </div>
-
-
 
     <script src="js/qgis2web_expressions.js"></script>
     <script src="js/leaflet.js"></script>
@@ -75,7 +101,68 @@
     <script src="data/residential.js"></script>
     <script>
 
+var sites = [
+  {"name": "Site1", "description": "This is a site", "latlng": [ -78.83076667785645 , 38.421452759543726 ]},
+  {"name": "Site2", "description": "This is another site", "latlng": [ -78.82930755615236 , 38.434766038944815 ]},
+  {"name": "Site3", "description": "This is a site as well", "latlng": [ -78.87496948242189 , 38.40046927825378 ]}
+]
+
+function updateMessageTable() {
+  console.log(sites)
+	var table = document.getElementById("tableBody");
+	table.innerHTML = "";
+
+	for(var i = 0; i < sites.length; i++) {
+		var row = document.createElement('tr');
+		var cell = document.createElement('td');
+		cell.textContent = i;
+		cell.className = "nr";
+		row.appendChild(cell);
+		
+		cell = document.createElement('td');
+		cell.textContent = sites[i].name;
+		cell.className = "name";
+		cell.onclick = (function() {
+			var $row = $(this).closest("tr")
+			var $text = $row.find(".nr").text();
+			openUsrOfMessage($text)
+			})
+		row.appendChild(cell);
+		
+		cell = document.createElement('td');
+		cell.textContent = sites[i].description;
+    row.appendChild(cell);
+
+    cell = document.createElement('input');
+		cell.type = "button";
+		cell.className = "btn";
+		cell.value = "Show On Map";
+		cell.onclick = (function() {
+			var $row = $(this).closest("tr")
+			var $text = $row.find(".nr").text();
+			showOnMap($text)
+      })
+    row.appendChild(cell);
+		
+		table.appendChild(row);
+	}
+}
+
+function showOnMap(siteNr) {
+  if(!marker) {
+    marker = L.marker(L.latLng(sites[siteNr].latlng[1], sites[siteNr].latlng[0]))
+    marker.addTo(map);
+  } else {
+    marker.setLatLng(L.latLng(sites[siteNr].latlng[1], sites[siteNr].latlng[0]))
+  }
+
+  marker.bindPopup("<a>Name: " + sites[siteNr].name + "</a>" + "<br></br><a>Descritpion: " + sites[siteNr].description + "</a>")
+  marker.update()
+  
+}
+
 var layer_ne_10m_airports_1;
+var marker = null;
 
 function newData(windFactor, residentialFactor) {
       bounds_group = new L.featureGroup([]);
@@ -91,22 +178,30 @@ function newData(windFactor, residentialFactor) {
         attribution: '',
         radius: 70,
         max: 0.8,
-        blur: 40,
-        minOpacity: 0.4,
+        blur: 60,
+        minOpacity: 0.3,
         gradient: {0.7: 'blue', 0.9: 'lime', 1: 'red'}});
 
         bounds_group.addLayer(layer_ne_10m_airports_1)
         
         map.addLayer(layer_ne_10m_airports_1);
-
     }
+
+  function removeHeatmap() {
+    if(layer_ne_10m_airports_1) {
+        map.removeLayer(layer_ne_10m_airports_1);
+      }
+  }
 
   $(document).ready(function(){
     $('#submit').click(function(){
       var windFactor = document.getElementById('windFactor').value;
       var residentialFactor = document.getElementById('residentialFactor').value;
-      console.log(windFactor, residentialFactor)
       newData(windFactor, residentialFactor);
+    });
+
+    $('#removeHeatmap').click(function(){
+      removeHeatmap()
     });
   });
 
@@ -115,8 +210,7 @@ function newData(windFactor, residentialFactor) {
     }).fitBounds([[38,-79],[40.869768,-80]]);
 
     var bounds_group = new L.featureGroup([]);
-    function setBounds() {
-    }
+
     var layer_OpenStreetMap_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         opacity: 1.0,
         attribution: '',
@@ -131,26 +225,11 @@ function newData(windFactor, residentialFactor) {
         console.log("{\"geometry\": {\"coordinates\": [", e.latlng.lng, ",", e.latlng.lat, "]}},")
     }
 
-    setBounds();
-
 
 
     map.createPane('pane_wind');
     map.getPane('pane_wind').style.zIndex = 401;
     map.getPane('pane_wind').style['mix-blend-mode'] = 'normal';
-    /*var ne_10m_airports_1_hm = geoJson2heat(jsonWind, 1);
-    var ne_residential = geoJson2heat(jsonResidential, 0.1);
-
-    var data = ne_10m_airports_1_hm.concat(ne_residential)
-    var layer_ne_10m_airports_1 = new L.heatLayer(data, {
-        attribution: '',
-        radius: 70,
-        max: 0.8,
-        blur: 40,
-        minOpacity: 0.4,
-        gradient: {0.7: 'blue', 0.9: 'lime', 1: 'red'}});
-    bounds_group.addLayer(layer_ne_10m_airports_1);
-    map.addLayer(layer_ne_10m_airports_1);*/
 
     function geoJson2heat(geojson, weight) {
       return geojson.features.map(function(feature) {
@@ -161,6 +240,9 @@ function newData(windFactor, residentialFactor) {
         ];
       });
     }
+
+    
+    updateMessageTable()
 </script>
 </body>
 </html>
