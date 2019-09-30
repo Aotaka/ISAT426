@@ -1,17 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Simply the Rest</title>
+	<title>ISATA426</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta charset="utf-8">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <script src="js/qgis2web_expressions.js"></script>
+  <script src="js/leaflet.js"></script>
+  <script src="js/leaflet-heat.js"></script>
+  <script src="js/leaflet.rotatedMarker.js"></script>
+  <script src="js/leaflet.pattern.js"></script>
+  <script src="js/leaflet-hash.js"></script>
+  <script src="js/Autolinker.min.js"></script>
+  <script src="js/rbush.min.js"></script>
+  <script src="js/labelgun.min.js"></script>
+  <script src="js/labels.js"></script>
+  <script src="data/wind.js"></script>
+  <script src="data/residential.js"></script>
     
-    <link rel="stylesheet" href="css/leaflet.css">
-    <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="css/leaflet.css">
+  <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
 	
 	<style>
     /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
@@ -34,6 +47,7 @@
 <div class="container-fluid">
 	<div class="row content">
 		<div class="col-sm-3 sidenav">
+        <h5>Weighting of factors</h5>
 			<div class="form-group">
   				<label id="usrLabel">Wind %:</label>
   				<input type="number" class="form-control" id="windFactor" value="50">
@@ -47,16 +61,26 @@
 
       <div class="form-group">
   				<label id="msgLabel">Road Acces %:</label>
-  				<input type="number" class="form-control" id="residentialFactor">
+  				<input type="number" class="form-control" id="roadFactor">
       </div>
 
       <div class="form-group">
   				<label id="msgLabel">Demand for Power %:</label>
-  				<input type="number" class="form-control" id="residentialFactor">
+  				<input type="number" class="form-control" id="demandForPowerFactor">
+      </div>
+
+      <div class="form-group">
+        <label id="msgLabel">Soil Type %:</label>
+        <input type="number" class="form-control" id="soilTypeFactor">
+      </div>
+
+      <div class="form-group">
+        <label id="msgLabel">Vegetation %:</label>
+        <input type="number" class="form-control" id="vegetationFactor">
       </div>
       
       <div class="form-group">
-        <input type="button" value="Update Heatmap" id="submit"/>
+        <input type="button" value="Add/Update Heatmap" id="submit"/>
         <input type="button" value="Remove Heatmap" id="removeHeatmap"/>
       </div>
 		</div>
@@ -66,7 +90,7 @@
 
         <div id=""; height: 800px;">
             <table class="table table-striped">
-              <h2>Proposed Sites</h2>
+              <h5>Proposed Sites</h5>
               <thead>
                 <tr>
                   <th>#</th>
@@ -86,25 +110,12 @@
 	</div>
 </div>
 
-    <script src="js/qgis2web_expressions.js"></script>
-    <script src="js/leaflet.js"></script>
-    <script src="js/leaflet-heat.js"></script>
-    <script src="js/leaflet.rotatedMarker.js"></script>
-    <script src="js/leaflet.pattern.js"></script>
-    <script src="js/leaflet-hash.js"></script>
-    <script src="js/Autolinker.min.js"></script>
-    <script src="js/rbush.min.js"></script>
-    <script src="js/labelgun.min.js"></script>
-    <script src="js/labels.js"></script>
-    <script src="data/ne_10m_airports_1.js"></script>
-    <script src="data/wind.js"></script>
-    <script src="data/residential.js"></script>
-    <script>
+<script>
 
 var sites = [
-  {"name": "Site1", "description": "This is a site", "latlng": [ -78.83076667785645 , 38.421452759543726 ]},
-  {"name": "Site2", "description": "This is another site", "latlng": [ -78.82930755615236 , 38.434766038944815 ]},
-  {"name": "Site3", "description": "This is a site as well", "latlng": [ -78.87496948242189 , 38.40046927825378 ]}
+  {"name": "Site1", "description": "This is a site", "windClass": 5, "soilType": "Stable Rock", "latlng": [ -78.83076667785645 , 38.421452759543726 ]},
+  {"name": "Site2", "description": "This is another site", "windClass": 4, "soilType": "Type A", "latlng": [ -78.82930755615236 , 38.434766038944815 ]},
+  {"name": "Site3", "description": "This is a site as well", "windClass": 2, "soilType": "Type C60", "latlng": [ -78.87496948242189 , 38.40046927825378 ]}
 ]
 
 function updateMessageTable() {
@@ -156,7 +167,13 @@ function showOnMap(siteNr) {
     marker.setLatLng(L.latLng(sites[siteNr].latlng[1], sites[siteNr].latlng[0]))
   }
 
-  marker.bindPopup("<a>Name: " + sites[siteNr].name + "</a>" + "<br></br><a>Descritpion: " + sites[siteNr].description + "</a>")
+  marker.bindPopup("<a>Name: " + sites[siteNr].name + "</a>" 
+                  + "<br></br>" 
+                  + "<a>Descritpion: " + sites[siteNr].description + "</a>"
+                  + "<br></br>" 
+                  + "<a>Wind Class: " + sites[siteNr].windClass + "</a>"
+                  + "<br></br>" 
+                  + "<a>Soil Type: " + sites[siteNr].soilType + "</a>")
   marker.update()
   
 }
@@ -207,7 +224,7 @@ function newData(windFactor, residentialFactor) {
 
     var map = L.map('map', {
         zoomControl:true, maxZoom:14, minZoom:1
-    }).fitBounds([[38,-79],[40.869768,-80]]);
+    }).fitBounds([[38.45056396804638,-78.84951322784211],[38.40053654273483,-78.81557554613653]]);
 
     var bounds_group = new L.featureGroup([]);
 
