@@ -118,8 +118,24 @@ var sites = [
   {"name": "Site3", "description": "This is a site as well", "windClass": 2, "soilType": "Type C60", "latlng": [ -78.87496948242189 , 38.40046927825378 ]}
 ]
 
+var layer_heatmap;
+var marker = null;
+
+$(document).ready(function(){
+    $('#submit').click(function(){
+      var windFactor = document.getElementById('windFactor').value;
+      var residentialFactor = document.getElementById('residentialFactor').value;
+      newData(windFactor, residentialFactor);
+    });
+
+    $('#removeHeatmap').click(function(){
+      removeHeatmap()
+    });
+  });
+
+
+
 function updateMessageTable() {
-  console.log(sites)
 	var table = document.getElementById("tableBody");
 	table.innerHTML = "";
 
@@ -175,23 +191,19 @@ function showOnMap(siteNr) {
                   + "<br></br>" 
                   + "<a>Soil Type: " + sites[siteNr].soilType + "</a>")
   marker.update()
-  
 }
-
-var layer_ne_10m_airports_1;
-var marker = null;
 
 function newData(windFactor, residentialFactor) {
       bounds_group = new L.featureGroup([]);
-      var ne_10m_airports_1_hm = geoJson2heat(jsonWind, windFactor);
+      var ne_wind = geoJson2heat(jsonWind, windFactor);
       var ne_residential = geoJson2heat(jsonResidential, residentialFactor);
-      var data = ne_10m_airports_1_hm.concat(ne_residential)
+      var data = ne_wind.concat(ne_residential)
 
-      if(layer_ne_10m_airports_1) {
-        map.removeLayer(layer_ne_10m_airports_1);
+      if(layer_heatmap) {
+        map.removeLayer(layer_heatmap);
       }
 
-      layer_ne_10m_airports_1 = new L.heatLayer(data, {
+      layer_heatmap = new L.heatLayer(data, {
         attribution: '',
         radius: 70,
         max: 0.8,
@@ -199,67 +211,51 @@ function newData(windFactor, residentialFactor) {
         minOpacity: 0.3,
         gradient: {0.7: 'blue', 0.9: 'lime', 1: 'red'}});
 
-        bounds_group.addLayer(layer_ne_10m_airports_1)
+        bounds_group.addLayer(layer_heatmap)
         
-        map.addLayer(layer_ne_10m_airports_1);
+        map.addLayer(layer_heatmap);
     }
 
   function removeHeatmap() {
-    if(layer_ne_10m_airports_1) {
-        map.removeLayer(layer_ne_10m_airports_1);
+    if(layer_heatmap) {
+        map.removeLayer(layer_heatmap);
       }
   }
 
-  $(document).ready(function(){
-    $('#submit').click(function(){
-      var windFactor = document.getElementById('windFactor').value;
-      var residentialFactor = document.getElementById('residentialFactor').value;
-      newData(windFactor, residentialFactor);
-    });
+  function onMapClick(e) {
+    console.log("{\"geometry\": {\"coordinates\": [", e.latlng.lng, ",", e.latlng.lat, "]}},")
+  }
 
-    $('#removeHeatmap').click(function(){
-      removeHeatmap()
+  function geoJson2heat(geojson, weight) {
+    return geojson.features.map(function(feature) {
+      return [
+        feature.geometry.coordinates[1],
+        feature.geometry.coordinates[0],
+        (weight /100)
+      ];
     });
+  }
+
+  var map = L.map('map', {
+      zoomControl:true, maxZoom:14, minZoom:1
+  }).fitBounds([[38.45056396804638,-78.84951322784211],[38.40053654273483,-78.81557554613653]]);
+
+  var bounds_group = new L.featureGroup([]);
+
+  var layer_OpenStreetMap_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      opacity: 1.0,
+      attribution: '',
   });
 
-    var map = L.map('map', {
-        zoomControl:true, maxZoom:14, minZoom:1
-    }).fitBounds([[38.45056396804638,-78.84951322784211],[38.40053654273483,-78.81557554613653]]);
+  map.addLayer(layer_OpenStreetMap_0);
+  map.createPane('pane_wind');
+  map.getPane('pane_wind').style.zIndex = 401;
+  map.getPane('pane_wind').style['mix-blend-mode'] = 'normal';
 
-    var bounds_group = new L.featureGroup([]);
+  map.on("click", onMapClick);
 
-    var layer_OpenStreetMap_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        opacity: 1.0,
-        attribution: '',
-    });
+  updateMessageTable()
 
-    map.addLayer(layer_OpenStreetMap_0);
-
-
-    map.on("click", onMapClick);
-
-    function onMapClick(e) {
-        console.log("{\"geometry\": {\"coordinates\": [", e.latlng.lng, ",", e.latlng.lat, "]}},")
-    }
-
-
-
-    map.createPane('pane_wind');
-    map.getPane('pane_wind').style.zIndex = 401;
-    map.getPane('pane_wind').style['mix-blend-mode'] = 'normal';
-
-    function geoJson2heat(geojson, weight) {
-      return geojson.features.map(function(feature) {
-        return [
-          feature.geometry.coordinates[1],
-          feature.geometry.coordinates[0],
-          (weight /100)
-        ];
-      });
-    }
-
-    
-    updateMessageTable()
 </script>
 </body>
 </html>
